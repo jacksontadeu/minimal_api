@@ -1,6 +1,9 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Minimal_API.Dominio.DTOs;
+using Minimal_API.Dominio.Interfaces;
+using Minimal_API.Dominio.Servicos;
 using Minimal_API.Infraestrutura.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +13,8 @@ var conexao = builder.Configuration.GetConnectionString("mysql");
 
 builder.Services.AddDbContext<DbContexto>(options =>
     options.UseMySql(conexao, ServerVersion.AutoDetect(conexao)));
+
+builder.Services.AddScoped<IAdministradorServico,AdministradorServico>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -26,29 +31,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
 
-app.MapGet("/weatherforecast", () =>
+app.MapPost("/login", ([FromBody]LoginDTO loginDTO, IAdministradorServico administradorServico) =>
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
-
-app.MapPost("/login", (LoginDTO loginDTO) =>
-{
-    if (loginDTO.Email == "adm@teste.com" && loginDTO.Senha == "123456")
+    if (administradorServico.Login(loginDTO) != null)
         return Results.Ok("Login realizado com sucesso!!!");
     else return Results.Unauthorized();
 
@@ -56,7 +42,3 @@ app.MapPost("/login", (LoginDTO loginDTO) =>
 
 app.Run();
 
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

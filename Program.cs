@@ -1,6 +1,16 @@
-var builder = WebApplication.CreateBuilder(args);
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Minimal_API.Dominio.DTOs;
+using Minimal_API.Infraestrutura.Data;
 
+var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
+
+var conexao = builder.Configuration.GetConnectionString("mysql");
+
+builder.Services.AddDbContext<DbContexto>(options =>
+    options.UseMySql(conexao, ServerVersion.AutoDetect(conexao)));
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -49,10 +59,4 @@ app.Run();
 internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
-public class LoginDTO
-{
-    public string Email { get; set; } = default!;
-    public string Senha { get; set; } = default!;
-
 }

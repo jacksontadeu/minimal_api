@@ -6,6 +6,7 @@ using Minimal_API.Dominio.DTOs.Veiculo;
 using Minimal_API.Dominio.Entidades;
 using Minimal_API.Dominio.Interfaces;
 using Minimal_API.Dominio.Servicos;
+using Minimal_API.Dominio.Validacoes;
 using Minimal_API.Infraestrutura.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -77,6 +78,12 @@ app.MapDelete("veiculo/deletarveiculo/{id}", ([FromRoute] int id,IVeiculoServico
 
 app.MapPost("veiculo/IncluirVeiculo", ([FromBody] VeiculoDTO veiculoDTO, IVeiculoServico veiculoServico) =>
 {
+    var validacao = new VeiculoValidacao();
+    var valida = validacao.ValidaDTO(veiculoDTO);
+
+    if (valida.Mensagens.Count > 0)
+        return Results.BadRequest(valida);
+
     var veiculo = new Veiculo
     {
         Nome = veiculoDTO.Nome,

@@ -48,25 +48,30 @@ app.MapGet("veiculo/buscarporid/{id}", (IVeiculoServico veiculoServico, [FromRou
     
 });
 
-//app.MapPut("veiculo/alterarveiculo/{id}", ([FromRoute]int id,IVeiculoServico veiculoServico, VeiculoDTO veiculoDTO) =>
-//{
-//    var veiculo = veiculoServico.ListarPorId(id);
-//    if (veiculo == null) return Results.NotFound();
-
-//    veiculo.Nome = veiculoDTO.Nome;
-//    veiculo.Marca = veiculoDTO.Marca;
-//    veiculo.AnoFabricacao = veiculoDTO.AnoFabricacao;
-
-//    veiculoServico.AlterarVeiculo(veiculo);
-//    return Results.Ok(veiculo);
-//});
-app.MapPut("veiculo/alterarveiculo", (Veiculo? veiculo, IVeiculoServico veiculoservico) =>
+app.MapPut("veiculo/alterarveiculo/{id}", ([FromRoute] int id, IVeiculoServico veiculoServico, VeiculoDTO veiculoDTO) =>
 {
-    if (veiculo == null)
-        return Results.NotFound();
-    veiculoservico.AlterarVeiculo(veiculo);
+    var veiculo = veiculoServico.ListarPorId(id);
+    if (veiculo == null) return Results.NotFound();
+    var validacao = new VeiculoValidacao();
+    var valida = validacao.ValidaDTO(veiculoDTO);
+    
+    if (valida.Mensagens.Count > 0)
+        return Results.BadRequest(valida);
+
+    veiculo.Nome = veiculoDTO.Nome;
+    veiculo.Marca = veiculoDTO.Marca;
+    veiculo.AnoFabricacao = veiculoDTO.AnoFabricacao;
+
+    veiculoServico.AlterarVeiculo(veiculo);
     return Results.Ok(veiculo);
 });
+//app.MapPut("veiculo/alterarveiculo", (Veiculo? veiculo, IVeiculoServico veiculoservico) =>
+//{  
+//    if (veiculo == null)
+//        return Results.NotFound();
+//    veiculoservico.AlterarVeiculo(veiculo);
+//    return Results.Ok(veiculo);
+//});
 
 app.MapDelete("veiculo/deletarveiculo/{id}", ([FromRoute] int id,IVeiculoServico veiculoServico) =>
 {

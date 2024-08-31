@@ -31,11 +31,11 @@ public class VeiculoServico : IVeiculoServico
     }
     public void AlterarVeiculo(Veiculo veiculo)
     {
-        //_context.Update(veiculo);
-        //_context.SaveChanges();
-        _context.Entry(veiculo).State = EntityState.Modified;
+        _context.Update(veiculo);
         _context.SaveChanges();
-        
+        //_context.Entry(veiculo).State = EntityState.Modified;
+        //_context.SaveChanges();
+
     }
     public void DeletarVeiculo(Veiculo veiculo)
     {  
